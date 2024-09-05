@@ -1,0 +1,20 @@
+FROM node:20-alpine
+
+RUN apk --no-cache add wget tar
+RUN mkdir -p /opt/mcsmanager \
+    && cd /opt/mcsmanager \
+    && wget https://github.com/MCSManager/MCSManager/releases/latest/download/mcsmanager_linux_release.tar.gz \
+    && tar -zxf mcsmanager_linux_release.tar.gz \
+    && rm -rf mcsmanager_linux_release.tar.gz \
+    && cd web \
+    && npm --registry http://npmmirror.com install --production
+
+ENV TZ=Asia/Shanghai
+
+VOLUME [ "/opt/mcsmanager/web/data" ]
+
+EXPOSE 23333
+
+WORKDIR /opt/mcsmanager/web
+
+ENTRYPOINT [ "node", "--max-old-space-size=8192", "--enable-source-maps", "app.js" ]
